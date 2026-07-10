@@ -1,9 +1,17 @@
 <script>
-  import { store, titleOf, snippetOf, formatWhen } from "./notes.svelte.js";
+  import { flip } from "svelte/animate";
+  import { fade } from "svelte/transition";
+  import { store, deleteNote, titleOf, snippetOf, formatWhen } from "./notes.svelte.js";
+  import { swipeRow } from "./gestures.js";
+  import { haptic } from "./haptics.js";
 
-  let { onopen, onnew } = $props();
+  let { onopen, onnew, onsettings } = $props();
 
   let query = $state("");
+  let revealedId = $state(null); // row whose delete button is swiped open
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const dur = (ms) => (reduceMotion ? 0 : ms);
 
   let shown = $derived(
     store.notes
@@ -13,11 +21,37 @@
       })
       .toSorted((a, b) => b.updated - a.updated)
   );
+
+  function openNote(id) {
+    if (revealedId !== null) {
+      revealedId = null; // first tap just dismisses the revealed delete button
+      return;
+    }
+    onopen(id);
+  }
+
+  function removeNote(id) {
+    haptic();
+    revealedId = null;
+    deleteNote(id);
+  }
+
+  function setRevealed(id, open) {
+    if (open) haptic();
+    revealedId = open ? id : revealedId === id ? null : revealedId;
+  }
 </script>
 
 <div class="screen">
   <header class="app-header">
-    <h1 class="large-title">Notes</h1>
+    <div class="title-row">
+      <h1 class="large-title">Notes</h1>
+      <button class="icon-btn" id="settings-btn" aria-label="Settings" onclick={onsettings}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 8.4a3.6 3.6 0 1 1 0 7.2 3.6 3.6 0 0 1 0-7.2zm0 1.7a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8zM10.6 2h2.8a.9.9 0 0 1 .88.72l.37 1.82c.55.22 1.07.52 1.54.89l1.76-.6a.9.9 0 0 1 1.07.4l1.4 2.43a.9.9 0 0 1-.19 1.13l-1.39 1.22a7.2 7.2 0 0 1 0 1.78l1.39 1.22a.9.9 0 0 1 .19 1.13l-1.4 2.43a.9.9 0 0 1-1.07.4l-1.76-.6c-.47.37-.99.67-1.54.89l-.37 1.82a.9.9 0 0 1-.88.72h-2.8a.9.9 0 0 1-.88-.72l-.37-1.82a7.2 7.2 0 0 1-1.54-.89l-1.76.6a.9.9 0 0 1-1.07-.4l-1.4-2.43a.9.9 0 0 1 .19-1.13l1.39-1.22a7.2 7.2 0 0 1 0-1.78L3.83 10.8a.9.9 0 0 1-.19-1.13l1.4-2.43a.9.9 0 0 1 1.07-.4l1.76.6c.47-.37.99-.67 1.54-.89l.37-1.82A.9.9 0 0 1 10.66 2z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
     <div class="search-wrap">
       <svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true">
         <path d="M8.5 3a5.5 5.5 0 0 1 4.38 8.83l3.64 3.64a.9.9 0 0 1-1.27 1.27l-3.64-3.64A5.5 5.5 0 1 1 8.5 3zm0 1.8a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4z" fill="currentColor"/>
@@ -30,13 +64,28 @@
     {#if shown.length > 0}
       <ul class="note-list">
         {#each shown as note (note.id)}
-          <li class="note-item">
-            <button class="note-item-btn" onclick={() => onopen(note.id)}>
-              <p class="note-title">{titleOf(note)}</p>
-              <p class="note-meta">
-                <time>{formatWhen(note.updated)}</time>{snippetOf(note)}
-              </p>
-            </button>
+          <li
+            class="note-item"
+            animate:flip={{ duration: dur(250) }}
+            transition:fade={{ duration: dur(150) }}
+          >
+            <button class="row-delete" tabindex={revealedId === note.id ? 0 : -1}
+              onclick={() => removeNote(note.id)}>Delete</button>
+            <div
+              class="note-row"
+              class:revealed={revealedId === note.id}
+              use:swipeRow={{
+                isOpen: () => revealedId === note.id,
+                setOpen: (open) => setRevealed(note.id, open),
+              }}
+            >
+              <button class="note-item-btn" onclick={() => openNote(note.id)}>
+                <p class="note-title">{titleOf(note)}</p>
+                <p class="note-meta">
+                  <time>{formatWhen(note.updated)}</time>{snippetOf(note)}
+                </p>
+              </button>
+            </div>
           </li>
         {/each}
       </ul>

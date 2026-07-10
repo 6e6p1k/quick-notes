@@ -8,7 +8,10 @@ A tiny, offline-first notes PWA with Markdown, designed to feel at home on iPhon
 - **Installable** — add it to your Home Screen from Safari (Share → *Add to Home Screen*) and it launches full-screen like a native app.
 - **Offline** — a Workbox service worker (via `vite-plugin-pwa`) precaches the app, so it opens instantly with no connection.
 - **Private** — notes live in `localStorage` on your device (same key as v1, so v1 notes carry over) and never leave it.
-- Create, edit, search, and delete notes with autosave, relative timestamps, and automatic dark mode.
+- **Native-feeling gestures** — swipe right from the left edge to close a note (standalone iOS web apps get no system back-swipe, so the app provides its own, tracking your finger), and swipe a list row left to reveal Delete, iOS-style.
+- **Theming** — System/Light/Dark appearance plus six iOS accent colors in the settings sheet, persisted on-device; the status-bar `theme-color` stays in sync and an inline script applies the theme before first paint.
+- **Polish** — press-state animations on all controls, animated list reordering, `prefers-reduced-motion` support, haptic feedback on key actions (iOS 18+ switch-toggle technique, progressive enhancement), a Share button (Web Share API), and a "New Note" app shortcut in the manifest.
+- Create, edit, search, and delete notes with autosave and relative timestamps.
 
 ## Stack
 

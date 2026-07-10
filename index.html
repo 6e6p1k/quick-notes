@@ -4,8 +4,20 @@
   <meta charset="utf-8">
   <!-- viewport-fit=cover lets the app extend under the notch / Dynamic Island;
        safe-area insets in CSS keep content clear of it -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Quick Notes</title>
+  <script>
+    // Apply the saved theme before first paint to avoid a flash
+    try {
+      var s = JSON.parse(localStorage.getItem("quicknotes.settings.v1")) || {};
+      var mode = s.mode || "system";
+      document.documentElement.dataset.theme =
+        mode === "system"
+          ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+          : mode;
+      document.documentElement.dataset.accent = s.accent || "yellow";
+    } catch (e) {}
+  </script>
   <meta name="description" content="A fast, offline-first notes app with Markdown.">
 
   <!-- iOS standalone web app -->

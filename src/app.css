@@ -5,34 +5,61 @@
    - 17px inputs so iOS Safari never zooms on focus
    ============================================================ */
 
+/* Theme is applied by JS as html[data-theme="light"|"dark"] (resolved from
+   the System/Light/Dark setting), so no prefers-color-scheme duplication.
+   An inline script in index.html sets it before first paint. */
+
 :root {
   --bg: #f2f2f7;
   --card: #ffffff;
   --text: #1c1c1e;
   --text-secondary: #8e8e93;
   --separator: rgba(60, 60, 67, 0.12);
-  --accent: #e6a800;
-  --accent-bg: #ffcc00;
   --danger: #ff3b30;
   --search-bg: rgba(118, 118, 128, 0.12);
   --header-blur-bg: rgba(242, 242, 247, 0.82);
   --code-bg: rgba(118, 118, 128, 0.12);
+  --sheet-bg: #ffffff;
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000000;
-    --card: #1c1c1e;
-    --text: #ffffff;
-    --text-secondary: #98989f;
-    --separator: rgba(84, 84, 88, 0.5);
-    --accent: #ffd60a;
-    --accent-bg: #ffd60a;
-    --search-bg: rgba(118, 118, 128, 0.24);
-    --header-blur-bg: rgba(0, 0, 0, 0.78);
-    --code-bg: rgba(118, 118, 128, 0.28);
-  }
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --card: #1c1c1e;
+  --text: #ffffff;
+  --text-secondary: #98989f;
+  --separator: rgba(84, 84, 88, 0.5);
+  --search-bg: rgba(118, 118, 128, 0.24);
+  --header-blur-bg: rgba(0, 0, 0, 0.78);
+  --code-bg: rgba(118, 118, 128, 0.28);
+  --sheet-bg: #1c1c1e;
+  color-scheme: dark;
 }
+
+/* Accent palette — iOS system colors, light/dark variants.
+   --accent is for tinted text/icons, --accent-bg for filled controls,
+   --on-accent for glyphs on top of filled controls. */
+
+:root {
+  --accent: #e6a800;
+  --accent-bg: #ffcc00;
+  --on-accent: #ffffff;
+}
+:root[data-theme="dark"] {
+  --accent: #ffd60a;
+  --accent-bg: #ffd60a;
+  --on-accent: #1c1c1e;
+}
+:root[data-accent="orange"] { --accent: #ff9500; --accent-bg: #ff9500; --on-accent: #fff; }
+:root[data-theme="dark"][data-accent="orange"] { --accent: #ff9f0a; --accent-bg: #ff9f0a; --on-accent: #1c1c1e; }
+:root[data-accent="pink"] { --accent: #ff2d55; --accent-bg: #ff2d55; --on-accent: #fff; }
+:root[data-theme="dark"][data-accent="pink"] { --accent: #ff375f; --accent-bg: #ff375f; --on-accent: #fff; }
+:root[data-accent="purple"] { --accent: #af52de; --accent-bg: #af52de; --on-accent: #fff; }
+:root[data-theme="dark"][data-accent="purple"] { --accent: #bf5af2; --accent-bg: #bf5af2; --on-accent: #fff; }
+:root[data-accent="blue"] { --accent: #007aff; --accent-bg: #007aff; --on-accent: #fff; }
+:root[data-theme="dark"][data-accent="blue"] { --accent: #0a84ff; --accent-bg: #0a84ff; --on-accent: #fff; }
+:root[data-accent="green"] { --accent: #34c759; --accent-bg: #34c759; --on-accent: #fff; }
+:root[data-theme="dark"][data-accent="green"] { --accent: #30d158; --accent-bg: #30d158; --on-accent: #fff; }
 
 * {
   margin: 0;
@@ -79,11 +106,41 @@ body {
   z-index: 2;
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 .large-title {
   font-size: 34px;
   font-weight: 700;
   letter-spacing: 0.37px;
-  margin-bottom: 10px;
+}
+
+.icon-btn {
+  border: none;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  margin-right: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.icon-btn:active {
+  transform: scale(0.88);
+  opacity: 0.6;
+}
+
+.icon-btn svg {
+  width: 24px;
+  height: 24px;
 }
 
 .search-wrap {
@@ -134,8 +191,41 @@ body {
   overflow: hidden;
 }
 
+.note-item {
+  position: relative;
+  overflow: hidden;
+}
+
 .note-item + .note-item {
   border-top: 0.5px solid var(--separator);
+}
+
+/* Swipe-to-delete: the row slides left over a fixed delete button */
+
+.row-delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 88px;
+  border: none;
+  background: var(--danger);
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.note-row {
+  position: relative;
+  background: var(--card);
+  transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  touch-action: pan-y; /* keep vertical scroll native; horizontal comes to us */
+}
+
+.note-row.revealed {
+  transform: translateX(-88px);
 }
 
 .note-item-btn {
@@ -231,19 +321,13 @@ body {
   border: none;
   border-radius: 50%;
   background: var(--accent-bg);
-  color: #fff;
+  color: var(--on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
   transition: transform 0.15s;
-}
-
-@media (prefers-color-scheme: dark) {
-  .compose-btn {
-    color: #1c1c1e;
-  }
 }
 
 .compose-btn:active {
@@ -302,9 +386,8 @@ body {
 .editor-date {
   font-size: 13px;
   color: var(--text-secondary);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  text-align: center;
+  padding: 8px 16px 0;
 }
 
 .header-actions {
@@ -323,6 +406,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.toggle-btn:active,
+.delete-btn:active,
+.back-btn:active,
+.row-delete:active {
+  transform: scale(0.88);
+  opacity: 0.6;
 }
 
 .toggle-btn {
@@ -483,4 +575,137 @@ body {
 .markdown-body img {
   max-width: 100%;
   border-radius: 8px;
+}
+
+/* ---------- Settings sheet ---------- */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9;
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  background: var(--sheet-bg);
+  border-radius: 16px 16px 0 0;
+  padding: 8px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--search-bg);
+  margin: 4px auto 12px;
+}
+
+.sheet-title {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.sheet-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin: 14px 0 8px;
+}
+
+.segmented {
+  display: flex;
+  background: var(--search-bg);
+  border-radius: 10px;
+  padding: 2px;
+}
+
+.segment {
+  flex: 1;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  padding: 8px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.segment.selected {
+  background: var(--card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] .segment.selected {
+  background: rgba(118, 118, 128, 0.42);
+}
+
+.swatches {
+  display: flex;
+  gap: 14px;
+  padding: 4px 2px;
+}
+
+.swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--swatch);
+  cursor: pointer;
+  transition: transform 0.15s;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+}
+
+.swatch:active {
+  transform: scale(0.85);
+}
+
+.swatch.selected {
+  outline-color: var(--swatch);
+}
+
+.sheet-done {
+  display: block;
+  width: 100%;
+  margin-top: 22px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent-bg);
+  color: var(--on-accent);
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  padding: 14px;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.sheet-done:active {
+  transform: scale(0.98);
+  opacity: 0.8;
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

@@ -1,6 +1,6 @@
 {
   "name": "quick-notes",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "A tiny, offline-first notes PWA designed to feel at home on iPhone. No frameworks, no build step — just HTML, CSS, and JavaScript.",
   "main": "index.js",
   "scripts": {

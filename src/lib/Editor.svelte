@@ -1,9 +1,13 @@
 <script>
   import { tick, untrack } from "svelte";
-  import { store, updateNote, deleteNote, formatWhen } from "./notes.svelte.js";
+  import { store, updateNote, deleteNote, formatWhen, titleOf } from "./notes.svelte.js";
   import { renderMarkdown } from "./markdown.js";
+  import { swipeBack } from "./gestures.js";
+  import { haptic } from "./haptics.js";
 
   let { noteId, onclose } = $props();
+
+  const canShare = typeof navigator.share === "function";
 
   let text = $state("");
   let preview = $state(false);
@@ -69,13 +73,31 @@
 
   function remove() {
     if (!confirm("Delete this note?")) return;
+    haptic();
     clearTimeout(saveTimer);
     deleteNote(noteId);
     onclose();
   }
+
+  function share() {
+    flush();
+    const note = store.notes.find((n) => n.id === noteId);
+    if (!note) return;
+    navigator.share({ title: titleOf(note), text: note.text }).catch(() => {});
+  }
+
+  function swipeClose() {
+    // same bookkeeping as tapping "Notes", triggered by the edge swipe
+    close();
+  }
 </script>
 
-<div class="screen editor-screen" class:open={noteId !== null} aria-hidden={noteId === null}>
+<div
+  class="screen editor-screen"
+  class:open={noteId !== null}
+  aria-hidden={noteId === null}
+  use:swipeBack={{ onClose: swipeClose }}
+>
   <header class="editor-header">
     <button class="back-btn" id="back-btn" onclick={close}>
       <svg viewBox="0 0 12 20" aria-hidden="true">
@@ -83,8 +105,14 @@
       </svg>
       Notes
     </button>
-    <span class="editor-date">{note ? formatWhen(note.updated) : ""}</span>
     <div class="header-actions">
+      {#if canShare}
+        <button class="toggle-btn" id="share-btn" aria-label="Share note" onclick={share}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 1.8a.85.85 0 0 1 .6.25l3.5 3.5a.85.85 0 0 1-1.2 1.2l-2.05-2.04V14a.85.85 0 0 1-1.7 0V4.71L9.1 6.75a.85.85 0 1 1-1.2-1.2l3.5-3.5a.85.85 0 0 1 .6-.25zM6 9.15h2a.85.85 0 0 1 0 1.7H6.85a.15.15 0 0 0-.15.15v9.2c0 .08.07.15.15.15h10.3a.15.15 0 0 0 .15-.15V11a.15.15 0 0 0-.15-.15H16a.85.85 0 0 1 0-1.7h2A1.85 1.85 0 0 1 19 11v9.2A1.85 1.85 0 0 1 17.15 22H6.85A1.85 1.85 0 0 1 5 20.2V11A1.85 1.85 0 0 1 6 9.15z" fill="currentColor"/>
+          </svg>
+        </button>
+      {/if}
       <button class="toggle-btn" id="preview-btn" onclick={togglePreview}
         aria-label={preview ? "Edit note" : "Preview note"}>
         {#if preview}
@@ -106,6 +134,8 @@
       </button>
     </div>
   </header>
+
+  <p class="editor-date">{note ? formatWhen(note.updated) : ""}</p>
 
   {#if preview}
     <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
