@@ -1,0 +1,339 @@
+/* ============================================================
+   Quick Notes — iOS-first styling
+   - safe-area insets so content clears the notch / home indicator
+   - dvh units so the layout tracks the real visible viewport
+   - 17px inputs so iOS Safari never zooms on focus
+   ============================================================ */
+
+:root {
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --text: #1c1c1e;
+  --text-secondary: #8e8e93;
+  --separator: rgba(60, 60, 67, 0.12);
+  --accent: #e6a800;
+  --accent-bg: #ffcc00;
+  --danger: #ff3b30;
+  --search-bg: rgba(118, 118, 128, 0.12);
+  --header-blur-bg: rgba(242, 242, 247, 0.82);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --card: #1c1c1e;
+    --text: #ffffff;
+    --text-secondary: #98989f;
+    --separator: rgba(84, 84, 88, 0.5);
+    --accent: #ffd60a;
+    --accent-bg: #ffd60a;
+    --search-bg: rgba(118, 118, 128, 0.24);
+    --header-blur-bg: rgba(0, 0, 0, 0.78);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* ---------- List screen ---------- */
+
+.app-header {
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 10px;
+  padding-left: calc(env(safe-area-inset-left, 0px) + 16px);
+  padding-right: calc(env(safe-area-inset-right, 0px) + 16px);
+  background: var(--header-blur-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid var(--separator);
+  z-index: 2;
+}
+
+.large-title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.37px;
+  margin-bottom: 10px;
+}
+
+.search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 9px;
+  width: 17px;
+  height: 17px;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+#search {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: var(--search-bg);
+  color: var(--text);
+  font-size: 17px; /* ≥16px: prevents iOS focus zoom */
+  font-family: inherit;
+  padding: 8px 10px 8px 32px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+#search::placeholder {
+  color: var(--text-secondary);
+}
+
+.note-list-wrap {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 14px calc(env(safe-area-inset-right, 0px) + 16px) 110px calc(env(safe-area-inset-left, 0px) + 16px);
+}
+
+.note-list {
+  list-style: none;
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.note-item {
+  padding: 11px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.note-item:active {
+  background: var(--search-bg);
+}
+
+.note-item + .note-item {
+  border-top: 0.5px solid var(--separator);
+}
+
+.note-title {
+  font-size: 17px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.note-meta {
+  font-size: 15px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.note-meta time {
+  color: var(--text-secondary);
+  margin-right: 8px;
+}
+
+.empty-state {
+  text-align: center;
+  padding-top: 18vh;
+  color: var(--text-secondary);
+}
+
+.empty-icon {
+  font-size: 52px;
+  margin-bottom: 12px;
+}
+
+.empty-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.empty-sub {
+  font-size: 15px;
+}
+
+.toolbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px calc(env(safe-area-inset-right, 0px) + 20px)
+    calc(env(safe-area-inset-bottom, 0px) + 12px)
+    calc(env(safe-area-inset-left, 0px) + 20px);
+  background: var(--header-blur-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-top: 0.5px solid var(--separator);
+}
+
+.note-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.compose-btn {
+  position: absolute;
+  right: calc(env(safe-area-inset-right, 0px) + 20px);
+  top: 50%;
+  transform: translateY(calc(-50% - env(safe-area-inset-bottom, 0px) / 2));
+  width: 44px; /* iOS minimum comfortable tap target */
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s;
+}
+
+@media (prefers-color-scheme: dark) {
+  .compose-btn {
+    color: #1c1c1e;
+  }
+}
+
+.compose-btn:active {
+  transform: translateY(calc(-50% - env(safe-area-inset-bottom, 0px) / 2)) scale(0.92);
+}
+
+.compose-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ---------- Editor screen ---------- */
+
+.editor-screen {
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 5;
+}
+
+.editor-screen.open {
+  transform: translateX(0);
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 8px)
+    calc(env(safe-area-inset-right, 0px) + 12px) 8px
+    calc(env(safe-area-inset-left, 0px) + 8px);
+  background: var(--header-blur-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid var(--separator);
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 17px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 8px;
+  min-height: 44px;
+}
+
+.back-btn svg {
+  width: 12px;
+  height: 20px;
+}
+
+.editor-date {
+  font-size: 13px;
+  color: var(--text-secondary);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.delete-btn {
+  border: none;
+  background: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-btn svg {
+  width: 20px;
+  height: 22px;
+}
+
+#note-text {
+  flex: 1;
+  width: 100%;
+  border: none;
+  resize: none;
+  outline: none;
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 17px; /* ≥16px: prevents iOS focus zoom */
+  line-height: 1.45;
+  padding: 16px calc(env(safe-area-inset-right, 0px) + 16px)
+    calc(env(safe-area-inset-bottom, 0px) + 16px)
+    calc(env(safe-area-inset-left, 0px) + 16px);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+#note-text::placeholder {
+  color: var(--text-secondary);
+}

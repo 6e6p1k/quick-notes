@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- viewport-fit=cover lets the app extend under the notch / Dynamic Island;
+       safe-area insets in CSS keep content clear of it -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Quick Notes</title>
+  <meta name="description" content="A fast, offline-first notes app.">
+
+  <!-- iOS standalone web app -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Notes">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Match browser chrome to the app background in both themes -->
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f2f2f7">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ===== Notes list ===== -->
+  <div class="screen" id="list-screen">
+    <header class="app-header">
+      <h1 class="large-title">Notes</h1>
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M8.5 3a5.5 5.5 0 0 1 4.38 8.83l3.64 3.64a.9.9 0 0 1-1.27 1.27l-3.64-3.64A5.5 5.5 0 1 1 8.5 3zm0 1.8a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4z" fill="currentColor"/>
+        </svg>
+        <input type="search" id="search" placeholder="Search" autocomplete="off" aria-label="Search notes">
+      </div>
+    </header>
+
+    <main class="note-list-wrap">
+      <ul class="note-list" id="note-list"></ul>
+      <div class="empty-state" id="empty-state" hidden>
+        <div class="empty-icon">📝</div>
+        <p class="empty-title">No Notes</p>
+        <p class="empty-sub">Tap the button below to write your first note.</p>
+      </div>
+    </main>
+
+    <footer class="toolbar">
+      <span class="note-count" id="note-count"></span>
+      <button class="compose-btn" id="new-note-btn" aria-label="New note">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15.7 3.7a2.4 2.4 0 0 1 3.4 0l1.2 1.2a2.4 2.4 0 0 1 0 3.4l-9.6 9.6a2 2 0 0 1-.9.51l-3.9 1.06a.75.75 0 0 1-.92-.92l1.06-3.9a2 2 0 0 1 .51-.9l9.15-9.15zM14.9 6.7l2.4 2.4 1.6-1.6a.9.9 0 0 0 0-1.27l-1.13-1.13a.9.9 0 0 0-1.27 0l-1.6 1.6z" fill="currentColor"/>
+        </svg>
+      </button>
+    </footer>
+  </div>
+
+  <!-- ===== Editor ===== -->
+  <div class="screen editor-screen" id="editor-screen" aria-hidden="true">
+    <header class="editor-header">
+      <button class="back-btn" id="back-btn">
+        <svg viewBox="0 0 12 20" aria-hidden="true">
+          <path d="M10.5 1.5 2.5 10l8 8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Notes
+      </button>
+      <span class="editor-date" id="editor-date"></span>
+      <button class="delete-btn" id="delete-btn" aria-label="Delete note">
+        <svg viewBox="0 0 22 24" aria-hidden="true">
+          <path d="M8 2.5A1.5 1.5 0 0 1 9.5 1h3A1.5 1.5 0 0 1 14 2.5V4h5.25a.85.85 0 0 1 0 1.7h-1.1l-1.02 15.3A2.6 2.6 0 0 1 14.54 23H7.46a2.6 2.6 0 0 1-2.59-2L3.85 5.7h-1.1a.85.85 0 0 1 0-1.7H8V2.5zm1.7.2V4h2.6V2.7H9.7zM8.6 8.4a.8.8 0 0 1 .85.75l.5 9a.8.8 0 0 1-1.6.09l-.5-9a.8.8 0 0 1 .75-.84zm4.8 0a.8.8 0 0 1 .75.84l-.5 9a.8.8 0 1 1-1.6-.09l.5-9a.8.8 0 0 1 .85-.75z" fill="currentColor"/>
+        </svg>
+      </button>
+    </header>
+    <textarea id="note-text" placeholder="Start writing…" autocapitalize="sentences"></textarea>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
