@@ -42,7 +42,7 @@
   }
 </script>
 
-<div class="screen">
+<div class="screen list-screen">
   <header class="app-header">
     <div class="title-row">
       <h1 class="large-title">Notes</h1>
@@ -77,6 +77,8 @@
               use:swipeRow={{
                 isOpen: () => revealedId === note.id,
                 setOpen: (open) => setRevealed(note.id, open),
+                onFullSwipe: () => removeNote(note.id),
+                onArm: haptic,
               }}
             >
               <button class="note-item-btn" onclick={() => openNote(note.id)}>
