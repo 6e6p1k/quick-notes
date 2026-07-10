@@ -20,12 +20,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+
       - name: Publish to gh-pages branch
         run: |
-          mkdir /tmp/site
-          rsync -a --exclude='.git' --exclude='.github' ./ /tmp/site/
-          touch /tmp/site/.nojekyll
-          cd /tmp/site
+          touch dist/.nojekyll
+          cd dist
           git init -b gh-pages
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
