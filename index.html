@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- viewport-fit=cover lets the app extend under the notch / Dynamic Island;
+       safe-area insets in CSS keep content clear of it -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Quick Notes</title>
+  <script>
+    // Apply the saved theme before first paint to avoid a flash
+    try {
+      var s = JSON.parse(localStorage.getItem("quicknotes.settings.v1")) || {};
+      var mode = s.mode || "system";
+      document.documentElement.dataset.theme =
+        mode === "system"
+          ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+          : mode;
+      document.documentElement.dataset.accent = s.accent || "yellow";
+    } catch (e) {}
+  </script>
+  <meta name="description" content="A fast, offline-first notes app with Markdown.">
+
+  <!-- iOS standalone web app -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Notes">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Match browser chrome to the app background in both themes -->
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f2f2f7">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <script type="module" crossorigin src="/quick-notes/assets/index-BL0xDXKH.js"></script>
+  <link rel="stylesheet" crossorigin href="/quick-notes/assets/index-BsHmQxl2.css">
+<link rel="manifest" href="/quick-notes/manifest.webmanifest"></head>
+<body>
+  <div id="app"></div>
+</body>
+</html>
